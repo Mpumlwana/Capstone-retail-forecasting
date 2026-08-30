@@ -47,13 +47,13 @@ Capstone-retail-forecasting/
 | # | Task | Status |
 |---|---|---|
 | 1 | 🧹 Data Cleaning & Preparation | ✅ Done |
-| 2 | 🔍 Exploratory Data Analysis (EDA) | ⏳ In Progress |
+| 2 | 🔍 Exploratory Data Analysis (EDA) | ✅ Done |
 
 ### 🟡 Phase 2 — Modelling
 
 | # | Task | Status |
 |---|---|---|
-| 3 | 📈 ARIMA Forecasting Model | ⬜ Not Started |
+| 3 | 📈 ARIMA Forecasting Model | ⏳ In Progress |
 | 4 | 📉 Exponential Smoothing Model | ⬜ Not Started |
 | 5 | 🌲 Random Forest Model | ⬜ Not Started |
 | 6 | ⚡ XGBoost Model | ⬜ Not Started |
