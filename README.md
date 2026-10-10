@@ -32,11 +32,27 @@ Capstone-retail-forecasting/
 │ ├── data_cleaning_report.md # Task 1: Full technical report
 │ ├── data_cleaning_reflection.md # Task 1: Personal reflection
 │ ├── 02_EDA.ipynb # Task 2: Exploratory Data Analysis
-│ └── 03_modelling.ipynb # Task 3: Forecasting Models
+│ ├── eda_report.md # Task 2: Full technical report
+│ ├── eda_reflection.md # Task 2: Personal reflection
+│ ├── 03_modelling.ipynb # Task 3: All 5 Forecasting Models
+│ ├── modelling_report.md # Task 3: Full technical report
+│ └── modelling_reflection.md # Task 3: Personal reflection
 │
 ├── models/ # Saved trained models
+│ ├── xgboost_model.pkl # Best all-store model — 22.77% MAPE
+│ └── label_encoder.pkl # Fitted encoder for store type features
+│
 ├── outputs/ # Charts and visualisations
+│ ├── 01_sales_over_time.png
+│ ├── 02_sales_by_day.png
+│ ├── 03_sales_by_month.png
+│ ├── 04_promo_effect.png
+│ ├── 05_sales_by_storetype.png
+│ ├── 06_competition_distance.png
+│ └── 07_model_comparison.png
+│
 └── README.md # You are here
+
 
 ---
 
@@ -49,23 +65,35 @@ Capstone-retail-forecasting/
 | 1 | 🧹 Data Cleaning & Preparation | ✅ Done |
 | 2 | 🔍 Exploratory Data Analysis (EDA) | ✅ Done |
 
-### 🟡 Phase 2 — Modelling
+### 🟢 Phase 2 — Modelling
 
 | # | Task | Status |
 |---|---|---|
-| 3 | 📈 ARIMA Forecasting Model | ⏳ In Progress |
-| 4 | 📉 Exponential Smoothing Model | ⬜ Not Started |
-| 5 | 🌲 Random Forest Model | ⬜ Not Started |
-| 6 | ⚡ XGBoost Model | ⬜ Not Started |
-| 7 | 🧠 LSTM Neural Network | ⬜ Not Started |
+| 3 | 🤖 Model Training & Comparison (5 models) | ✅ Done |
+| 4 | 📦 Inventory Optimisation Engine | ⬜ Not Started |
+| 5 | 🌐 Streamlit Interactive Dashboard | ⬜ Not Started |
 
 ### 🔴 Phase 3 — Deployment
 
 | # | Task | Status |
 |---|---|---|
-| 8 | 🏆 Model Comparison & Selection | ⬜ Not Started |
-| 9 | 📦 Inventory Optimisation Engine | ⬜ Not Started |
-| 10 | 🌐 Streamlit Interactive Dashboard | ⬜ Not Started |
+| 6 | 🚀 Model Deployment & Final Submission | ⬜ Not Started |
+
+---
+
+## 🤖 Model Results Summary
+
+Five models were trained and compared in `03_modelling.ipynb`:
+
+| Model | MAE | RMSE | MAPE | Scope |
+|---|---|---|---|---|
+| Exponential Smoothing | €801 | €1,270 | 15.76% | Store 1 only |
+| ARIMA | €1,381 | €2,020 | 17.63% | Store 1 only |
+| LSTM | €1,477 | €1,924 | 19.97% | Store 1 only |
+| **XGBoost ✅ Selected** | **€1,581** | **€2,384** | **22.77%** | **All 1,115 stores** |
+| Random Forest | €1,739 | €2,668 | 26.28% | All 1,115 stores |
+
+**Selected model: XGBoost** — best performance across all 1,115 stores simultaneously. Scales without retraining per store.
 
 ---
 
@@ -75,10 +103,11 @@ Capstone-retail-forecasting/
 ![Pandas](https://img.shields.io/badge/Pandas-3.0-darkblue?logo=pandas)
 ![NumPy](https://img.shields.io/badge/NumPy-2.4-lightblue?logo=numpy)
 ![Scikit-learn](https://img.shields.io/badge/Scikit--learn-orange?logo=scikit-learn)
+![XGBoost](https://img.shields.io/badge/XGBoost-red?logo=xgboost)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?logo=tensorflow)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
 
-Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-learn` · `xgboost` · `statsmodels` · `tensorflow` · `streamlit`
+Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-learn` · `xgboost` · `statsmodels` · `tensorflow` · `joblib` · `streamlit`
 
 ---
 
