@@ -20,6 +20,8 @@ For every task, you'll find:
 ---
 
 ## 🗂️ Project Structure
+
+```
 Capstone-retail-forecasting/
 │
 ├── data/ # Raw and cleaned datasets (not uploaded to GitHub)
@@ -52,7 +54,7 @@ Capstone-retail-forecasting/
 │ └── 07_model_comparison.png
 │
 └── README.md # You are here
-
+```
 
 ---
 
