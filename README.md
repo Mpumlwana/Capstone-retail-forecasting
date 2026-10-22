@@ -24,27 +24,27 @@ For every task, you'll find:
 ```
 Capstone-retail-forecasting/
 │
-├── data/ # Raw and cleaned datasets (not uploaded to GitHub)
-│ ├── train.csv # Rossmann daily sales — 1M+ records
-│ ├── store.csv # Store characteristics and metadata
-│ └── cleaned_data.csv # Final merged and cleaned dataset
+├── data/                                    # Raw and cleaned datasets (not uploaded to GitHub)
+│ ├── train.csv                              # Rossmann daily sales — 1M+ records
+│ ├── store.csv                              # Store characteristics and metadata
+│ └── cleaned_data.csv                       # Final merged and cleaned dataset
 │
 ├── notebooks/ # One notebook per task
-│ ├── 01_data_cleaning.ipynb # Task 1: Data Cleaning & Preparation
-│ ├── data_cleaning_report.md # Task 1: Full technical report
-│ ├── data_cleaning_reflection.md # Task 1: Personal reflection
-│ ├── 02_EDA.ipynb # Task 2: Exploratory Data Analysis
-│ ├── eda_report.md # Task 2: Full technical report
-│ ├── eda_reflection.md # Task 2: Personal reflection
-│ ├── 03_modelling.ipynb # Task 3: All 5 Forecasting Models
-│ ├── modelling_report.md # Task 3: Full technical report
-│ └── modelling_reflection.md # Task 3: Personal reflection
+│ ├── 01_data_cleaning.ipynb                 # Task 1: Data Cleaning & Preparation
+│ ├── data_cleaning_report.md                # Task 1: Full technical report
+│ ├── data_cleaning_reflection.md            # Task 1: Personal reflection
+│ ├── 02_EDA.ipynb                           # Task 2: Exploratory Data Analysis
+│ ├── eda_report.md                          # Task 2: Full technical report
+│ ├── eda_reflection.md                      # Task 2: Personal reflection
+│ ├── 03_modelling.ipynb                     # Task 3: All 5 Forecasting Models
+│ ├── modelling_report.md                    # Task 3: Full technical report
+│ └── modelling_reflection.md                # Task 3: Personal reflection
 │
-├── models/ # Saved trained models
-│ ├── xgboost_model.pkl # Best all-store model — 22.77% MAPE
-│ └── label_encoder.pkl # Fitted encoder for store type features
+├── models/                                  # Saved trained models
+│ ├── xgboost_model.pkl                      # Best all-store model — 22.77% MAPE
+│ └── label_encoder.pkl                      # Fitted encoder for store type features
 │
-├── outputs/ # Charts and visualisations
+├── outputs/                                 # Charts and visualisations
 │ ├── 01_sales_over_time.png
 │ ├── 02_sales_by_day.png
 │ ├── 03_sales_by_month.png
@@ -53,7 +53,7 @@ Capstone-retail-forecasting/
 │ ├── 06_competition_distance.png
 │ └── 07_model_comparison.png
 │
-└── README.md # You are here
+└── README.md                               # You are here
 ```
 
 ---
