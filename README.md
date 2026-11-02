@@ -24,36 +24,41 @@ For every task, you'll find:
 ```
 Capstone-retail-forecasting/
 │
-├── data/                                    # Raw and cleaned datasets (not uploaded to GitHub)
-│ ├── train.csv                              # Rossmann daily sales — 1M+ records
-│ ├── store.csv                              # Store characteristics and metadata
-│ └── cleaned_data.csv                       # Final merged and cleaned dataset
+├── data/                              # Datasets (not uploaded to GitHub)
+│   ├── train.csv                      # Rossmann daily sales — 1M+ records
+│   ├── store.csv                      # Store characteristics and metadata
+│   ├── cleaned_data.csv               # Final merged and cleaned dataset
+│   └── inventory_recommendations.csv  # Reorder point and safety stock per store
 │
-├── notebooks/ # One notebook per task
-│ ├── 01_data_cleaning.ipynb                 # Task 1: Data Cleaning & Preparation
-│ ├── data_cleaning_report.md                # Task 1: Full technical report
-│ ├── data_cleaning_reflection.md            # Task 1: Personal reflection
-│ ├── 02_EDA.ipynb                           # Task 2: Exploratory Data Analysis
-│ ├── eda_report.md                          # Task 2: Full technical report
-│ ├── eda_reflection.md                      # Task 2: Personal reflection
-│ ├── 03_modelling.ipynb                     # Task 3: All 5 Forecasting Models
-│ ├── modelling_report.md                    # Task 3: Full technical report
-│ └── modelling_reflection.md                # Task 3: Personal reflection
+├── notebooks/                         # One notebook per task
+│   ├── 01_data_cleaning.ipynb         # Task 1: Data Cleaning & Preparation
+│   ├── data_cleaning_report.md        # Task 1: Full technical report
+│   ├── data_cleaning_reflection.md    # Task 1: Personal reflection
+│   ├── 02_EDA.ipynb                   # Task 2: Exploratory Data Analysis
+│   ├── eda_report.md                  # Task 2: Full technical report
+│   ├── eda_reflection.md              # Task 2: Personal reflection
+│   ├── 03_modelling.ipynb             # Task 3: All 5 Forecasting Models
+│   ├── modelling_report.md            # Task 3: Full technical report
+│   ├── modelling_reflection.md        # Task 3: Personal reflection
+│   ├── 04_inventory.ipynb             # Task 4: Inventory Optimisation Engine
+│   ├── inventory_report.md            # Task 4: Full technical report
+│   └── inventory_reflection.md        # Task 4: Personal reflection
 │
-├── models/                                  # Saved trained models
-│ ├── xgboost_model.pkl                      # Best all-store model — 22.77% MAPE
-│ └── label_encoder.pkl                      # Fitted encoder for store type features
+├── models/                            # Saved trained models
+│   ├── xgboost_model.pkl              # Best all-store model — 22.77% MAPE
+│   └── label_encoder.pkl              # Saved LabelEncoder (holds the Assortment mapping only)
 │
-├── outputs/                                 # Charts and visualisations
-│ ├── 01_sales_over_time.png
-│ ├── 02_sales_by_day.png
-│ ├── 03_sales_by_month.png
-│ ├── 04_promo_effect.png
-│ ├── 05_sales_by_storetype.png
-│ ├── 06_competition_distance.png
-│ └── 07_model_comparison.png
+├── outputs/                           # Charts and visualisations
+│   ├── 01_sales_over_time.png
+│   ├── 02_sales_by_day.png
+│   ├── 03_sales_by_month.png
+│   ├── 04_promo_effect.png
+│   ├── 05_sales_by_storetype.png
+│   ├── 06_competition_distance.png
+│   ├── 07_model_comparison.png
+│   └── 09_stock_simulation_store1.png
 │
-└── README.md                               # You are here
+└── README.md                          # You are here
 ```
 
 ---
@@ -67,12 +72,12 @@ Capstone-retail-forecasting/
 | 1 | 🧹 Data Cleaning & Preparation | ✅ Done |
 | 2 | 🔍 Exploratory Data Analysis (EDA) | ✅ Done |
 
-### 🟢 Phase 2 — Modelling
+### 🟢 Phase 2 — Modelling & Inventory
 
 | # | Task | Status |
 |---|---|---|
 | 3 | 🤖 Model Training & Comparison (5 models) | ✅ Done |
-| 4 | 📦 Inventory Optimisation Engine | ⬜ Not Started |
+| 4 | 📦 Inventory Optimisation Engine | ✅ Done |
 | 5 | 🌐 Streamlit Interactive Dashboard | ⬜ Not Started |
 
 ### 🔴 Phase 3 — Deployment
@@ -96,6 +101,32 @@ Five models were trained and compared in `03_modelling.ipynb`:
 | Random Forest | €1,739 | €2,668 | 26.28% | All 1,115 stores |
 
 **Selected model: XGBoost** — best performance across all 1,115 stores simultaneously. Scales without retraining per store.
+
+---
+
+## 📦 Inventory Engine Summary
+
+`04_inventory.ipynb` uses the saved XGBoost model to forecast 30 days of demand (1–30 August 2015) for all 1,115 stores, then calculates a **Reorder Point** and **Safety Stock** for each store.
+
+| Measure | Value |
+|---|---|
+| Stores covered | 1,115 |
+| Predictions generated | 33,450 |
+| Assumed lead time | 7 days |
+| Assumed service level | 95% (Z-score 1.65) |
+| Average safety stock per store | €9,043 |
+| Average reorder point per store | €42,627 |
+
+**Formulas used:**
+- Safety Stock = Z × Standard Deviation of demand × √Lead Time
+- Reorder Point = Average Daily Demand × Lead Time + Safety Stock
+
+**Known limitations** (full detail in `inventory_report.md`):
+- Values are in **Euros of sales, not units of stock**
+- **Sunday zeros** make demand look more variable, which inflates safety stock
+- Future **promotions were assumed to be zero**
+- Forecasts could not be checked against real August 2015 sales
+- The stock simulation chart uses assumed starting stock and order size
 
 ---
 
