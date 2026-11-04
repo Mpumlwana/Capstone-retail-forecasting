@@ -28,26 +28,37 @@ Capstone-retail-forecasting/
 │   ├── train.csv                      # Rossmann daily sales — 1M+ records
 │   ├── store.csv                      # Store characteristics and metadata
 │   ├── cleaned_data.csv               # Final merged and cleaned dataset
-│   └── inventory_recommendations.csv  # Reorder point and safety stock per store
+│   └── inventory_recommendations.csv  # Reorder point and safety stock per store (Task 4 settings)
+│
+├── src/                               # Reusable modules, matching the Design Phase
+│   ├── features.py                    # Module 1: Feature Engineering
+│   ├── forecasting.py                 # Module 2: time split + XGBoost tuning
+│   ├── evaluation.py                  # Module 3: MAE / RMSE / MAPE, baseline, model selection
+│   └── inventory.py                   # Module 4: safety stock, reorder point, order quantity
 │
 ├── notebooks/                         # One notebook per task
 │   ├── 01_data_cleaning.ipynb         # Task 1: Data Cleaning & Preparation
-│   ├── data_cleaning_report.md        # Task 1: Full technical report
-│   ├── data_cleaning_reflection.md    # Task 1: Personal reflection
+│   ├── data_cleaning_report.md
+│   ├── data_cleaning_reflection.md
 │   ├── 02_EDA.ipynb                   # Task 2: Exploratory Data Analysis
-│   ├── eda_report.md                  # Task 2: Full technical report
-│   ├── eda_reflection.md              # Task 2: Personal reflection
-│   ├── 03_modelling.ipynb             # Task 3: All 5 Forecasting Models
-│   ├── modelling_report.md            # Task 3: Full technical report
-│   ├── modelling_reflection.md        # Task 3: Personal reflection
+│   ├── eda_report.md
+│   ├── eda_reflection.md
+│   ├── 03_modelling.ipynb             # Task 3: 5 Forecasting Models
+│   ├── modelling_report.md
+│   ├── modelling_reflection.md
 │   ├── 04_inventory.ipynb             # Task 4: Inventory Optimisation Engine
-│   ├── inventory_report.md            # Task 4: Full technical report
-│   └── inventory_reflection.md        # Task 4: Personal reflection
+│   ├── inventory_report.md
+│   ├── inventory_reflection.md
+│   ├── 05_implementation_evaluation.ipynb  # Implementation Part 1: baseline + tuning
+│   ├── implementation_report.md
+│   └── implementation_reflection.md
 │
 ├── models/                            # Saved trained models
-│   ├── xgboost_model.pkl              # Best all-store model — 22.77% MAPE
+│   ├── xgboost_model.pkl              # Task 3 settings — 22.77% MAPE
+│   ├── xgboost_tuned.pkl              # Tuned model — 15.03% MAPE
 │   └── label_encoder.pkl              # Saved LabelEncoder (holds the Assortment mapping only)
 │
+├── evidence/                          # Screenshots of test and evaluation results
 ├── outputs/                           # Charts and visualisations
 │   ├── 01_sales_over_time.png
 │   ├── 02_sales_by_day.png
@@ -60,6 +71,8 @@ Capstone-retail-forecasting/
 │
 └── README.md                          # You are here
 ```
+
+*Automated tests (`tests/`) and the Streamlit dashboard (`app/`) are being added during the Implementation phase.*
 
 ---
 
@@ -78,55 +91,73 @@ Capstone-retail-forecasting/
 |---|---|---|
 | 3 | 🤖 Model Training & Comparison (5 models) | ✅ Done |
 | 4 | 📦 Inventory Optimisation Engine | ✅ Done |
-| 5 | 🌐 Streamlit Interactive Dashboard | ⬜ Not Started |
 
-### 🔴 Phase 3 — Deployment
+### 🟡 Phase 3 — Implementation & Testing/Evaluation
 
 | # | Task | Status |
 |---|---|---|
-| 6 | 🚀 Model Deployment & Final Submission | ⬜ Not Started |
+| 5 | 🧩 Reusable modules in `src/` (design modules 1–4) | ✅ Done |
+| 6 | 📏 Seasonal-naive baseline + tuning (REQ-002, REQ-006) | ✅ Done |
+| 7 | 🌐 Streamlit Interactive Dashboard (REQ-004) | ⏳ In Progress |
+| 8 | 🧪 Automated tests and defect log | ⬜ Not Started |
+| 9 | 📝 Final Implementation & Testing/Evaluation report | ⬜ Not Started |
 
 ---
 
-## 🤖 Model Results Summary
+## 🤖 Results
 
-Five models were trained and compared in `03_modelling.ipynb`:
+### Implementation results (test set: April to July 2015)
+
+| Model | MAE | RMSE | MAPE |
+|---|---|---|---|
+| Seasonal naive (baseline: same as last week) | €2,369 | €3,541 | 34.59% |
+| XGBoost (Task 3 settings) | €1,581 | €2,384 | 22.77% |
+| **XGBoost (tuned) ✅ Selected** | **€1,122** | **€1,977** | **15.03%** |
+
+- All three were scored on the **same 136,027 rows** (2 rows with no sale 7 days earlier were left out for every model).
+- The tuned settings were chosen on **validation data (Jan–Mar 2015)**, and the test set was scored **once**.
+- The 20% MAPE threshold used for selection is a **project assumption**, because the Design Phase gives no number.
+
+### Task 3 five-model comparison (history)
 
 | Model | MAE | RMSE | MAPE | Scope |
 |---|---|---|---|---|
 | Exponential Smoothing | €801 | €1,270 | 15.76% | Store 1 only |
 | ARIMA | €1,381 | €2,020 | 17.63% | Store 1 only |
 | LSTM | €1,477 | €1,924 | 19.97% | Store 1 only |
-| **XGBoost ✅ Selected** | **€1,581** | **€2,384** | **22.77%** | **All 1,115 stores** |
+| XGBoost | €1,581 | €2,384 | 22.77% | All 1,115 stores |
 | Random Forest | €1,739 | €2,668 | 26.28% | All 1,115 stores |
 
-**Selected model: XGBoost** — best performance across all 1,115 stores simultaneously. Scales without retraining per store.
+⚠️ This table is **not like-for-like**: three models were scored on Store 1 only and two on all stores. A fair comparison on the same data is still to be done.
 
 ---
 
 ## 📦 Inventory Engine Summary
 
-`04_inventory.ipynb` uses the saved XGBoost model to forecast 30 days of demand (1–30 August 2015) for all 1,115 stores, then calculates a **Reorder Point** and **Safety Stock** for each store.
+`04_inventory.ipynb` used the saved XGBoost model to forecast 30 days of demand (1–30 August 2015) for all 1,115 stores, then calculated a **Reorder Point** and **Safety Stock** for each store.
 
 | Measure | Value |
 |---|---|
 | Stores covered | 1,115 |
 | Predictions generated | 33,450 |
-| Assumed lead time | 7 days |
-| Assumed service level | 95% (Z-score 1.65) |
+| Lead time used in Task 4 | 7 days |
+| Service level | 95% (Z-score 1.65) |
 | Average safety stock per store | €9,043 |
 | Average reorder point per store | €42,627 |
 
-**Formulas used:**
-- Safety Stock = Z × Standard Deviation of demand × √Lead Time
-- Reorder Point = Average Daily Demand × Lead Time + Safety Stock
+🔧 **Update:** `src/inventory.py` now follows the approved Design Phase: demand spread comes from the **forecast error**, the default lead time is **5 days**, and a recommended **order quantity** is produced. The numbers above come from the Task 4 notebook and will be recalculated with the tuned model.
 
-**Known limitations** (full detail in `inventory_report.md`):
+**Formulas (design version):**
+- Safety Stock = Z × Standard Deviation of forecast error × √Lead Time
+- Reorder Point = Average Daily Demand × Lead Time + Safety Stock
+- Order Quantity = Average Daily Demand × Review Period (14 days is an assumption)
+
+**Known limitations:**
 - Values are in **Euros of sales, not units of stock**
-- **Sunday zeros** make demand look more variable, which inflates safety stock
 - Future **promotions were assumed to be zero**
 - Forecasts could not be checked against real August 2015 sales
 - The stock simulation chart uses assumed starting stock and order size
+- The test period covers four months, not a full year
 
 ---
 
@@ -141,6 +172,22 @@ Five models were trained and compared in `03_modelling.ipynb`:
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
 
 Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-learn` · `xgboost` · `statsmodels` · `tensorflow` · `joblib` · `streamlit`
+
+---
+
+## 🚀 How to Run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Mpumlwana/Capstone-retail-forecasting.git
+   cd Capstone-retail-forecasting
+   ```
+2. Install the libraries:
+   ```bash
+   pip install pandas numpy matplotlib seaborn scikit-learn xgboost statsmodels tensorflow joblib streamlit jupyter
+   ```
+3. Download `train.csv` and `store.csv` from Kaggle and place them in a `data/` folder.
+4. Open the notebooks in order, starting with `01_data_cleaning.ipynb`. Notebook 01 creates `data/cleaned_data.csv`, which the later notebooks need.
 
 ---
 
