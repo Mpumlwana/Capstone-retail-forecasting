@@ -28,13 +28,20 @@ Capstone-retail-forecasting/
 │   ├── train.csv                      # Rossmann daily sales — 1M+ records
 │   ├── store.csv                      # Store characteristics and metadata
 │   ├── cleaned_data.csv               # Final merged and cleaned dataset
-│   └── inventory_recommendations.csv  # Reorder point and safety stock per store (Task 4 settings)
+│   └── inventory_recommendations.csv  # Task 4 output (older method, kept as history)
 │
 ├── src/                               # Reusable modules, matching the Design Phase
 │   ├── features.py                    # Module 1: Feature Engineering
 │   ├── forecasting.py                 # Module 2: time split + XGBoost tuning
 │   ├── evaluation.py                  # Module 3: MAE / RMSE / MAPE, baseline, model selection
-│   └── inventory.py                   # Module 4: safety stock, reorder point, order quantity
+│   ├── inventory.py                   # Module 4: safety stock, reorder point, order quantity
+│   └── build_dashboard_data.py        # Prepares the four files the dashboard reads
+│
+├── app/                               # Module 5: Dashboard
+│   ├── app.py                         # Streamlit dashboard
+│   └── dashboard_data/                # Small CSV files the dashboard reads
+│
+├── tests/                             # Automated tests (pytest), being added
 │
 ├── notebooks/                         # One notebook per task
 │   ├── 01_data_cleaning.ipynb         # Task 1: Data Cleaning & Preparation
@@ -51,28 +58,20 @@ Capstone-retail-forecasting/
 │   ├── inventory_reflection.md
 │   ├── 05_implementation_evaluation.ipynb  # Implementation Part 1: baseline + tuning
 │   ├── implementation_report.md
-│   └── implementation_reflection.md
+│   ├── implementation_reflection.md
+│   ├── dashboard_report.md            # Implementation Part 2: dashboard
+│   └── dashboard_reflection.md
 │
 ├── models/                            # Saved trained models
 │   ├── xgboost_model.pkl              # Task 3 settings — 22.77% MAPE
 │   ├── xgboost_tuned.pkl              # Tuned model — 15.03% MAPE
 │   └── label_encoder.pkl              # Saved LabelEncoder (holds the Assortment mapping only)
 │
-├── evidence/                          # Screenshots of test and evaluation results
+├── evidence/                          # Screenshots of test, evaluation and dashboard results
 ├── outputs/                           # Charts and visualisations
-│   ├── 01_sales_over_time.png
-│   ├── 02_sales_by_day.png
-│   ├── 03_sales_by_month.png
-│   ├── 04_promo_effect.png
-│   ├── 05_sales_by_storetype.png
-│   ├── 06_competition_distance.png
-│   ├── 07_model_comparison.png
-│   └── 09_stock_simulation_store1.png
-│
+├── requirements.txt                   # Python packages needed by src/ and app/
 └── README.md                          # You are here
 ```
-
-*Automated tests (`tests/`) and the Streamlit dashboard (`app/`) are being added during the Implementation phase.*
 
 ---
 
@@ -98,8 +97,8 @@ Capstone-retail-forecasting/
 |---|---|---|
 | 5 | 🧩 Reusable modules in `src/` (design modules 1–4) | ✅ Done |
 | 6 | 📏 Seasonal-naive baseline + tuning (REQ-002, REQ-006) | ✅ Done |
-| 7 | 🌐 Streamlit Interactive Dashboard (REQ-004) | ⏳ In Progress |
-| 8 | 🧪 Automated tests and defect log | ⬜ Not Started |
+| 7 | 🌐 Streamlit Interactive Dashboard (REQ-004) | ✅ Done (runs locally) |
+| 8 | 🧪 Automated tests and defect log | ⏳ In Progress |
 | 9 | 📝 Final Implementation & Testing/Evaluation report | ⬜ Not Started |
 
 ---
@@ -132,32 +131,54 @@ Capstone-retail-forecasting/
 
 ---
 
-## 📦 Inventory Engine Summary
+## 🌐 Dashboard
 
-`04_inventory.ipynb` used the saved XGBoost model to forecast 30 days of demand (1–30 August 2015) for all 1,115 stores, then calculated a **Reorder Point** and **Safety Stock** for each store.
+A live Streamlit page where a store manager picks a store and sees its forecast, how accurate the model was, and its reorder plan.
+
+**What the user can change:** store, supplier lead time (1–14 days), service level (90% / 95% / 99%) and how many days of demand one order covers (7–28).
+
+**What the user sees:** average daily demand, safety stock, reorder point, order quantity, a 30-day forecast chart, an actual-vs-predicted chart with that store's error, the model comparison table, and a list of assumptions.
+
+The reorder plan on screen is calculated live by `src/inventory.py`.
+
+| | Store 1 (lead 5) | Store 1 (lead 10) | Store 262 (lead 5) |
+|---|---|---|---|
+| Average daily demand | €3,303 | €3,303 | €19,917 |
+| Safety stock | €4,935 | €6,979 | €13,951 |
+| Reorder point | €21,452 | €40,014 | €113,534 |
+| Order quantity | €46,249 | €46,249 | €278,832 |
+
+Screenshots are in `evidence/` (A09 to A13).
+
+---
+
+## 📦 Inventory Plan (current method)
+
+`src/build_dashboard_data.py` uses the **tuned** model to forecast 30 days (1–30 August 2015) for all 1,115 stores and calculates a plan for each, following the approved Design Phase.
 
 | Measure | Value |
 |---|---|
 | Stores covered | 1,115 |
-| Predictions generated | 33,450 |
-| Lead time used in Task 4 | 7 days |
-| Service level | 95% (Z-score 1.65) |
-| Average safety stock per store | €9,043 |
-| Average reorder point per store | €42,627 |
+| Lead time | 5 days (adjustable) |
+| Service level | 95% (Z-score 1.65, adjustable) |
+| Average reorder point per store | €32,446 |
+| Median reorder point per store | €30,844 |
+| Highest reorder point | Store 262: €113,534 |
+| Lowest reorder point | Store 543: €11,620 |
 
-🔧 **Update:** `src/inventory.py` now follows the approved Design Phase: demand spread comes from the **forecast error**, the default lead time is **5 days**, and a recommended **order quantity** is produced. The numbers above come from the Task 4 notebook and will be recalculated with the tuned model.
-
-**Formulas (design version):**
+**Formulas:**
 - Safety Stock = Z × Standard Deviation of forecast error × √Lead Time
 - Reorder Point = Average Daily Demand × Lead Time + Safety Stock
 - Order Quantity = Average Daily Demand × Review Period (14 days is an assumption)
 
+🕰️ **History:** the Task 4 notebook used the first XGBoost model, a 7-day lead time and the spread of the predictions, which gave an average reorder point of €42,627. Those numbers are superseded by the table above.
+
 **Known limitations:**
 - Values are in **Euros of sales, not units of stock**
-- Future **promotions were assumed to be zero**
+- The 30-day forecast assumes **no promotions and no school holidays**
 - Forecasts could not be checked against real August 2015 sales
-- The stock simulation chart uses assumed starting stock and order size
 - The test period covers four months, not a full year
+- The dashboard shows pre-computed results and does not call the model live
 
 ---
 
@@ -168,10 +189,11 @@ Capstone-retail-forecasting/
 ![NumPy](https://img.shields.io/badge/NumPy-2.4-lightblue?logo=numpy)
 ![Scikit-learn](https://img.shields.io/badge/Scikit--learn-orange?logo=scikit-learn)
 ![XGBoost](https://img.shields.io/badge/XGBoost-red?logo=xgboost)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?logo=tensorflow)
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
 
-Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-learn` · `xgboost` · `statsmodels` · `tensorflow` · `joblib` · `streamlit`
+Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-learn` · `xgboost` · `statsmodels` · `tensorflow` · `joblib` · `streamlit` · `pytest`
 
 ---
 
@@ -182,12 +204,23 @@ Libraries used: `pandas` · `numpy` · `matplotlib` · `seaborn` · `scikit-lear
    git clone https://github.com/Mpumlwana/Capstone-retail-forecasting.git
    cd Capstone-retail-forecasting
    ```
-2. Install the libraries:
+2. Install the packages for the modules and dashboard:
    ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn xgboost statsmodels tensorflow joblib streamlit jupyter
+   pip install -r requirements.txt
    ```
-3. Download `train.csv` and `store.csv` from Kaggle and place them in a `data/` folder.
-4. Open the notebooks in order, starting with `01_data_cleaning.ipynb`. Notebook 01 creates `data/cleaned_data.csv`, which the later notebooks need.
+   Notebook 03 also needs `statsmodels` and `tensorflow`, and the notebooks need `jupyter` and `seaborn`.
+3. **To run only the dashboard:** the four files it reads are already in `app/dashboard_data/`:
+   ```bash
+   python -m streamlit run app/app.py
+   ```
+4. **To rebuild everything from the raw data:** download `train.csv` and `store.csv` from Kaggle into a `data/` folder, run notebook `01_data_cleaning.ipynb` (it creates `data/cleaned_data.csv`), then:
+   ```bash
+   python -m src.build_dashboard_data
+   ```
+5. **To run the automated tests** (once added):
+   ```bash
+   python -m pytest tests -v
+   ```
 
 ---
 
