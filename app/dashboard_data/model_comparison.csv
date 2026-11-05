@@ -1,0 +1,4 @@
+Model,MAE,RMSE,MAPE
+Seasonal naive (baseline),2368.85,3541.4,34.59
+XGBoost (Task 3 settings),1580.64,2384.14,22.77
+XGBoost (tuned),1121.78,1976.71,15.03
